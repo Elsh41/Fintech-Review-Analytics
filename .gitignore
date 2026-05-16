@@ -10,6 +10,8 @@ data/raw/*.csv
 # System files
 .DS_Store
 Thumbs.db
+# Database
+*.db
 # VS Code
 .vscode/
-data/processed/*.csv
+data/*.csv
