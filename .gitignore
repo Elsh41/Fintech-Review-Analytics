@@ -7,6 +7,7 @@ __pycache__/
 *.py[cod]
 # Data (Prevent pushing large CSVs)
 data/raw/*.csv
+data/processed/*.csv
 # System files
 .DS_Store
 Thumbs.db
