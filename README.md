@@ -67,3 +67,68 @@ Following pipeline execution, all records are saved to `data/processed/combined_
 * **`date`** *(Timestamp)*: Absolute ISO submission index.
 * **`bank`** *(String)*: Categorical label tracking corporate source location.
 * **`source`** *(String)*: Origin platform tracking anchor (`Google Play`).
+
+##  Sentiment Analysis & Comparative Pipeline
+
+This module applies three distinct algorithmic approaches—ranging from traditional rule-based lexicon dictionaries to deep learning transformer architectures—to map and evaluate customer sentiment distributions for major Ethiopian banking institutions (**CBE, Bank of Abyssinia, and Dashen Bank**).
+
+### 📊 Sentiment Framework Configurations
+To ensure an equitable side-by-side distribution comparison, all framework scores are normalized and mapped onto an identical 3-way distribution spectrum (`POSITIVE`, `NEUTRAL`, `NEGATIVE`) using the following thresholds:
+
+*   **VADER (Valence Aware Dictionary and sEntiment Reasoner):** Captures sentiment strings utilizing a localized baseline lexicon map. Evaluated via the global `compound` metric score using standard benchmarks:
+    *   **POSITIVE:** Score $\ge 0.05$
+    *   **NEGATIVE:** Score $\le -0.05$
+    *   **NEUTRAL:** $-0.05 < \text{Score} < 0.05$
+*   **TextBlob:** Parses text records to compute semantic polarity and baseline phrase subjectivity indicators. Thresholded similarly to VADER for structural alignment:
+    *   **POSITIVE:** Score $\ge 0.05$
+    *   **NEGATIVE:** Score $\le -0.05$
+    *   **NEUTRAL:** $-0.05 < \text{Score} < 0.05$
+*   **DistilBERT Transformer (`distilbert-base-uncased-finetuned-sst-2-english`):** A context-aware deep learning pipeline model. Since the underlying architecture is natively binary (outputs only binary `POSITIVE`/`NEGATIVE` classes), an implicit **Neutrality Interceptor** is implemented:
+    *   If the model's prediction confidence score sits below **70% (`< 0.70`)**, the record is flagged as **NEUTRAL** due to high context ambiguity.
+    *   If confidence is $\ge 0.70$, the model's native label assignment is preserved.
+
+---
+
+### 🔍 Architectural Insights & Limitations
+
+During model benchmarking, distinct behavioral traits were observed regarding how the frameworks handle raw, non-filtered app store reviews containing multi-language elements (such as Ge'ez characters or Amharic phrases written in Latin script):
+
+1.  **Lexicon Vulnerability (VADER & TextBlob):** These engines depend strictly on an English word matrix. When analyzing text strings containing localized Amharic idioms or transliterations, they fail to find keyword matches and safely default the review to **NEUTRAL (0.0)**. This generates an artificially high neutral baseline distribution.
+2.  **Transformer Overconfidence (DistilBERT):** As a contextual model, DistilBERT attempts to break down foreign character clusters into English sub-tokens. This can result in aggressive classification patterns with misleadingly high confidence scores on text entries it does not natively understand.
+
+---
+
+### 📈 Current Execution Results Matrix
+
+
+| Bank | Framework | % POSITIVE | % NEUTRAL | % NEGATIVE |
+| :--- | :--- | :---: | :---: | :---: |
+| **CBE** | VADER | `68.00` | `22.00` | `10.00` |
+| | TextBlob | `66.00` | `28.00` | `6.00` |
+| | DistilBERT | `67.00` | `3.00` | `30.00` |
+| **Abyssinia**| VADER | `53.00` | `29.00` | `18.00` |
+| | TextBlob | `54.00` | `34.00` | `12.00` |
+| | DistilBERT | `52.00` | `5.00` | `43.00` |
+| **Dashen** | VADER | `64.00` | `22.00` | `14.00` |
+| | TextBlob | `63.00` | `26.00` | `11.00` |
+| | DistilBERT | `63.00` | `3.00` | `34.00` |
+
+
+##  Sentiment Aggregation & Cross-Validation Metrics
+
+This pipeline stage shifts focus from individual string classification to population-level cross-validation, grouping metrics across independent variables: **Banking Institution** and **User Star Rating (1–5)**. 
+
+### 📐 Metric Aggregation Architecture
+By tracking the cross-section of app store star ratings against the algorithmic results, we assess the predictive convergence of rule-based dictionaries versus deep-learning contexts:
+
+1.  **VADER Matrix Correlation:** Quantifies sentiment intensity values against explicit star ratings. Historically, 1-star reviews should tightly converge toward a negative baseline ($\approx -0.6$), whereas 5-star ratings should align with a strong positive ceiling ($\approx +0.7$).
+2.  **TextBlob Polar Matrix:** Provides a smooth linear slope mapping sentiment valence. TextBlob calculates explicit semantic phrase metrics, which allow it to establish baseline validations alongside VADER.
+3.  **Transformer Sentiment Distribution:** Validates our custom **Neutrality Interceptor** logic. The score vector utilizes a sign-mapping logic: $\text{Label Class} \times \text{Confidence Probability Value}$, mapping deep-learning context perfectly onto a standard $-1.0$ to $+1.0$ comparative chart scale.
+
+---
+
+### 📊 Metric Aggregation Visualizations Template
+The workflow automatically stores, aggregates, and outputs three corresponding trend charts inside the notebook directory:
+*   `Average VADER Sentiment by Bank and Star Rating`
+*   `Average TextBlob Polarity by Bank and Star Rating`
+*   `Average Transformer Sentiment by Bank and Star Rating`
