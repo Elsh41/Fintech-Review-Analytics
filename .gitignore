@@ -8,12 +8,12 @@ __pycache__/
 # Data (Prevent pushing large CSVs)
 data/raw/*.csv
 data/processed/*.csv
+notebooks/*.csv
 # System files
 .DS_Store
 Thumbs.db
 # Database
 *.db
-
 # VS Code
 .vscode/
 data/*.csv
