@@ -132,3 +132,28 @@ The workflow automatically stores, aggregates, and outputs three corresponding t
 *   `Average VADER Sentiment by Bank and Star Rating`
 *   `Average TextBlob Polarity by Bank and Star Rating`
 *   `Average Transformer Sentiment by Bank and Star Rating`
+
+##  Thematic Analysis & Business Logic Mapping
+
+This phase moves beyond global sentiment polarity to discover the **root causes** of user satisfaction or frustration by organizing feedback into five business-critical domains.
+
+### 🧩 Methodology
+1. **Keyword Discovery:** Utilized `TfidfVectorizer` to extract statistically significant n-grams (unigrams and bigrams) per financial institution. This ensures that our thematic boundary definitions are derived from actual customer vocabulary.
+2. **Heuristic Keyword Mapping:** Implemented a robust `THEME_MAP` classifier to bucket incoming text streams into five distinct target pillars:
+   * **System Stability:** Backend performance, server connectivity, and application crashes.
+   * **Authentication & Access:** Onboarding barriers, OTP generation issues, and login bottlenecks.
+   * **User Experience (UX):** Front-end UI aesthetics, navigation fluidness, and interface layout clarity.
+   * **Financial Transactions:** Core functional features including mobile money transfers, bill payments, and balance tracking.
+   * **Support & Trust:** Human customer service interactions, problem resolution velocity, and platform trust metrics.
+3. **Sentiment-Theme Cross-Correlation:** Cross-referenced VADER compound sentiment averages against the assigned themes to isolate functional **Drivers** (positive vectors) from engineering **Pain Points** (negative vectors).
+
+### 📈 Operational Insights Matrix
+The workflow outputs a normalized distribution table showing how each bank's feedback is segmented among the five main themes:
+
+| Bank | System Stability | Authentication & Access | User Experience (UX) | Financial Transactions | Support & Trust | General/Other |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **CBE** | `0.07%` | `0.01%` | `0.04%` | `0.06%` | `0.04%` | `0.77%` |
+| **Abyssinia**| `0.13%` | `0.03%` | `0.02%` | `0.03%` | `0.06%` | `0.73%` |
+| **Dashen** | `0.08%` | `0.05%` | `0.09%` | `0.03%` | `0.04%` | `0.70%` |
+
+
